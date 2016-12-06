@@ -16,14 +16,12 @@
 package com.google.vr.sdk.base.sensors;
 
 import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.Looper;
 import com.google.vr.sdk.base.sensors.internal.OrientationEKF;
+import com.google.vr.sdk.base.sensors.RiftManager.RiftEvent;
+import com.google.vr.sdk.base.sensors.RiftManager.RiftEventListener;
 
 /**
  * Provides head tracking information from the device IMU. 
@@ -31,8 +29,6 @@ import com.google.vr.sdk.base.sensors.internal.OrientationEKF;
 public class HeadTracker
 {
 	private static final String TAG = "HeadTracker";
-	private static final double NS2S = 1.E-09D;
-	private static final int[] INPUT_SENSORS = { 1, 4 };
 	private final Context mContext;
 	private final float[] mEkfToHeadTracker = new float[16];
 
@@ -40,15 +36,18 @@ public class HeadTracker
 
 	private final float[] mTmpRotatedEvent = new float[3];
 	private Looper mSensorLooper;
-	private SensorEventListener mSensorEventListener;
+	private RiftEventListener mSensorEventListener;
 	private volatile boolean mTracking;
 	private final OrientationEKF mTracker = new OrientationEKF();
 	private long mLastGyroEventTimeNanos;
+	
+	private RiftManager riftManager; 
 
 	public HeadTracker(Context context)
 	{
 		mContext = context;
 		Matrix.setRotateEulerM(mEkfToHeadTracker, 0, -90.0F, 0.0F, 0.0F);
+		riftManager = new RiftManager();
 	}
 
 	public void startTracking()
@@ -58,14 +57,10 @@ public class HeadTracker
 		}
 		mTracker.reset();
 
-		mSensorEventListener = new SensorEventListener()
+		mSensorEventListener = new RiftEventListener()
 		{
-			public void onSensorChanged(SensorEvent event) {
+			public void onRiftEvent(RiftEvent event) {
 				HeadTracker.this.processSensorEvent(event);
-			}
-
-			public void onAccuracyChanged(Sensor sensor, int accuracy)
-			{
 			}
 		};
 		Thread sensorThread = new Thread(new Runnable()
@@ -76,12 +71,7 @@ public class HeadTracker
 				mSensorLooper = Looper.myLooper();
 				Handler handler = new Handler();
 
-				SensorManager sensorManager = (SensorManager)mContext.getSystemService("sensor");
-
-				for (int sensorType : HeadTracker.INPUT_SENSORS) {
-					Sensor sensor = sensorManager.getDefaultSensor(sensorType);
-					sensorManager.registerListener(mSensorEventListener, sensor, 0, handler);
-				}
+				riftManager.registerListener(mSensorEventListener, 5, handler);
 
 				Looper.loop();
 			}
@@ -96,9 +86,7 @@ public class HeadTracker
 			return;
 		}
 
-		SensorManager sensorManager = (SensorManager)mContext.getSystemService("sensor");
-
-		sensorManager.unregisterListener(mSensorEventListener);
+		riftManager.unregisterListener(mSensorEventListener);
 		mSensorEventListener = null;
 
 		mSensorLooper.quit();
@@ -125,17 +113,17 @@ public class HeadTracker
 		Matrix.multiplyMM(headView, offset, mTmpHeadView, 0, mEkfToHeadTracker, 0);
 	}
 
-	private void processSensorEvent(SensorEvent event)
+	private void processSensorEvent(RiftEvent event)
 	{
 		long timeNanos = System.nanoTime();
 
-		mTmpRotatedEvent[0] = (-event.values[1]);
-		mTmpRotatedEvent[1] = event.values[0];
+		mTmpRotatedEvent[0] = event.values[0];
+		mTmpRotatedEvent[1] = event.values[1];
 		mTmpRotatedEvent[2] = event.values[2];
 		synchronized (mTracker) {
-			if (event.sensor.getType() == 1) {
+			if (event.type == RiftEvent.TYPE_ACC) {
 				mTracker.processAcc(mTmpRotatedEvent, event.timestamp);
-			} else if (event.sensor.getType() == 4) {
+			} else if (event.type == RiftEvent.TYPE_GYRO) {
 				mLastGyroEventTimeNanos = timeNanos;
 				mTracker.processGyro(mTmpRotatedEvent, event.timestamp);
 			}

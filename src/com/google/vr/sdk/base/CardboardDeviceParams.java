@@ -65,10 +65,10 @@ public class CardboardDeviceParams
 		mModel = "cardboard";
 		mVersion = "1.0";
 
-		mInterpupillaryDistance = 0.06F;
-		mVerticalDistanceToLensCenter = 0.035F;
-		mLensDiameter = 0.025F;
-		mScreenToLensDistance = 0.037F;
+		mInterpupillaryDistance = 0.08F;
+		mVerticalDistanceToLensCenter = 0.058F;
+		mLensDiameter = 0.028F;
+		mScreenToLensDistance = 0.050F;
 		mEyeToLensDistance = 0.011F;
 
 		mVisibleViewportSize = 0.06F;
