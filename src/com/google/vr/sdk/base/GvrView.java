@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 import android.content.Context;
 import android.opengl.GLES20;
@@ -23,7 +23,7 @@ import android.opengl.Matrix;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.WindowManager;
-import com.google.vrtoolkit.cardboard.sensors.HeadTracker;
+import com.google.vr.sdk.base.sensors.HeadTracker;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -34,16 +34,16 @@ import javax.microedition.khronos.opengles.GL10;
  * 
  * This view can be used as a normal GLSurfaceView by implementing one of its rendering interfaces:
  * 
- *   CardboardView.StereoRenderer: abstracts all stereoscopic rendering details from the renderer.
- *   CardboardView.Renderer: for complex engines that need to handle all stereo rendering details by themselves.
+ *   GvrView.StereoRenderer: abstracts all stereoscopic rendering details from the renderer.
+ *   GvrView.Renderer: for complex engines that need to handle all stereo rendering details by themselves.
  * 
- * The CardboardView.StereoRenderer interface is recommended for all applications that can make use of it, while the CardboardView.Renderer interface is discouraged and should only be used if really needed.
+ * The GvrView.StereoRenderer interface is recommended for all applications that can make use of it, while the GvrView.Renderer interface is discouraged and should only be used if really needed.
  * 
  * The view allows switching from VR mode to normal rendering mode in stereo renderers at any time by calling the setVRModeEnabled method.
  */
-public class CardboardView extends GLSurfaceView
+public class GvrView extends GLSurfaceView
 {
-	private static final String TAG = "CardboardView";
+	private static final String TAG = "GvrView";
 	private static final float DEFAULT_Z_NEAR = 0.1F;
 	private static final float DEFAULT_Z_FAR = 100.0F;
 	private RendererHelper mRendererHelper;
@@ -57,13 +57,13 @@ public class CardboardView extends GLSurfaceView
 	private float mZNear = 0.1F;
 	private float mZFar = 100.0F;
 
-	public CardboardView(Context context)
+	public GvrView(Context context)
 	{
 		super(context);
 		init(context);
 	}
 
-	public CardboardView(Context context, AttributeSet attrs) {
+	public GvrView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
@@ -233,7 +233,7 @@ public class CardboardView extends GLSurfaceView
 
 	public void setRenderer(GLSurfaceView.Renderer renderer)
 	{
-		throw new RuntimeException("Please use the CardboardView renderer interfaces");
+		throw new RuntimeException("Please use the GvrView renderer interfaces");
 	}
 
 	public void onDetachedFromWindow()
@@ -244,7 +244,7 @@ public class CardboardView extends GLSurfaceView
 				try {
 					mRendererHelper.wait();
 				} catch (InterruptedException e) {
-					Log.e("CardboardView", "Interrupted during shutdown: " + e.toString());
+					Log.e("GvrView", "Interrupted during shutdown: " + e.toString());
 				}
 			}
 		}
@@ -264,15 +264,15 @@ public class CardboardView extends GLSurfaceView
 	}
 
 	private class StereoRendererHelper
-	implements CardboardView.Renderer
+	implements GvrView.Renderer
 	{
-		private final CardboardView.StereoRenderer mStereoRenderer;
+		private final GvrView.StereoRenderer mStereoRenderer;
 		private boolean mVRMode;
 
-		public StereoRendererHelper(CardboardView.StereoRenderer stereoRenderer)
+		public StereoRendererHelper(GvrView.StereoRenderer stereoRenderer)
 		{
 			mStereoRenderer = stereoRenderer;
-			mVRMode = CardboardView.this.mVRMode;
+			mVRMode = GvrView.this.mVRMode;
 		}
 
 		public void setVRModeEnabled(final boolean enabled) {
@@ -338,7 +338,7 @@ public class CardboardView extends GLSurfaceView
 		private final EyeParams mRightEye;
 		private final float[] mLeftEyeTranslate;
 		private final float[] mRightEyeTranslate;
-		private final CardboardView.Renderer mRenderer;
+		private final GvrView.Renderer mRenderer;
 		private boolean mShuttingDown;
 		private HeadMountedDisplay mHmd;
 		private boolean mVRMode;
@@ -349,10 +349,10 @@ public class CardboardView extends GLSurfaceView
 		private boolean mProjectionChanged;
 		private boolean mInvalidSurfaceSize;
 
-		public RendererHelper(CardboardView.Renderer renderer)
+		public RendererHelper(GvrView.Renderer renderer)
 		{
 			mRenderer = renderer;
-			mHmd = new HeadMountedDisplay(CardboardView.this.mHmd);
+			mHmd = new HeadMountedDisplay(GvrView.this.mHmd);
 			mHeadTransform = new HeadTransform();
 			mMonocular = new EyeParams(0);
 			mLeftEye = new EyeParams(1);
@@ -363,11 +363,11 @@ public class CardboardView extends GLSurfaceView
 			mLeftEyeTranslate = new float[16];
 			mRightEyeTranslate = new float[16];
 
-			mVRMode = CardboardView.this.mVRMode;
-			mDistortionCorrectionEnabled = CardboardView.this.mDistortionCorrectionEnabled;
-			mDistortionCorrectionScale = CardboardView.this.mDistortionCorrectionScale;
-			mZNear = CardboardView.this.mZNear;
-			mZFar = CardboardView.this.mZFar;
+			mVRMode = GvrView.this.mVRMode;
+			mDistortionCorrectionEnabled = GvrView.this.mDistortionCorrectionEnabled;
+			mDistortionCorrectionScale = GvrView.this.mDistortionCorrectionScale;
+			mZNear = GvrView.this.mZNear;
+			mZFar = GvrView.this.mZFar;
 
 			mProjectionChanged = true;
 		}
@@ -468,8 +468,8 @@ public class CardboardView extends GLSurfaceView
 
 					mVRMode = enabled;
 
-					if ((mRenderer instanceof CardboardView.StereoRendererHelper)) {
-						CardboardView.StereoRendererHelper stereoHelper = (CardboardView.StereoRendererHelper)mRenderer;
+					if ((mRenderer instanceof GvrView.StereoRendererHelper)) {
+						GvrView.StereoRendererHelper stereoHelper = (GvrView.StereoRendererHelper)mRenderer;
 						stereoHelper.setVRModeEnabled(enabled);
 					}
 
@@ -608,7 +608,7 @@ public class CardboardView extends GLSurfaceView
 			if ((width != screen.getWidth()) || (height != screen.getHeight())) {
 				if (!mInvalidSurfaceSize) {
 					GLES20.glClear(16384);
-					Log.w("CardboardView", "Surface size " + width + "x" + height + " does not match the expected screen size " + screen.getWidth() + "x" + screen.getHeight() + ". Rendering is disabled.");
+					Log.w("GvrView", "Surface size " + width + "x" + height + " does not match the expected screen size " + screen.getWidth() + "x" + screen.getHeight() + ". Rendering is disabled.");
 				}
 
 				mInvalidSurfaceSize = true;
@@ -675,7 +675,7 @@ public class CardboardView extends GLSurfaceView
 	{
 		public abstract void onNewFrame(HeadTransform paramHeadTransform);
 
-		public abstract void onDrawEye(EyeTransform paramEyeTransform);
+		public abstract void onDrawEye(Eye paramEyeTransform);
 
 		public abstract void onFinishFrame(Viewport paramViewport);
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -24,29 +24,29 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.vrtoolkit.cardboard.sensors.MagnetSensor;
-import com.google.vrtoolkit.cardboard.sensors.NfcSensor;
+import com.google.vr.sdk.base.sensors.MagnetSensor;
+import com.google.vr.sdk.base.sensors.NfcSensor;
 
 /**
  * Base activity that provides easy integration with Cardboard devices.
  * 
  * Exposes events to interact with Cardboards and handles many of the details commonly required when creating an Activity for VR rendering.
  */
-public class CardboardActivity extends Activity
+public class GvrActivity extends Activity
 implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcListener
 {
 	private static final int NAVIGATION_BAR_TIMEOUT_MS = 2000;
-	private CardboardView mCardboardView;
+	private GvrView mGvrView;
 	private MagnetSensor mMagnetSensor;
 	private NfcSensor mNfcSensor;
 	private int mVolumeKeysMode;
 
-	public void setCardboardView(CardboardView cardboardView)
+	public void setGvrView(GvrView cardboardView)
 	{
-		mCardboardView = cardboardView;
+		mGvrView = cardboardView;
 
 		if (cardboardView != null) {
-			CardboardDeviceParams cardboardDeviceParams = mNfcSensor.getCardboardDeviceParams();
+			CardboardDeviceParams cardboardDeviceParams = null;
 			if (cardboardDeviceParams == null) {
 				cardboardDeviceParams = new CardboardDeviceParams();
 			}
@@ -55,9 +55,9 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 		}
 	}
 
-	public CardboardView getCardboardView()
+	public GvrView getGvrView()
 	{
-		return mCardboardView;
+		return mGvrView;
 	}
 
 	public void setVolumeKeysMode(int mode)
@@ -91,8 +91,8 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 
 	public void onInsertedIntoCardboard(CardboardDeviceParams deviceParams)
 	{
-		if (mCardboardView != null)
-			mCardboardView.updateCardboardDeviceParams(deviceParams);
+		if (mGvrView != null)
+			mGvrView.updateCardboardDeviceParams(deviceParams);
 	}
 
 	public void onRemovedFromCardboard()
@@ -116,16 +116,6 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 
 		getWindow().addFlags(128);
 
-		mMagnetSensor = new MagnetSensor(this);
-		mMagnetSensor.setOnCardboardTriggerListener(this);
-
-		mNfcSensor = NfcSensor.getInstance(this);
-		mNfcSensor.addOnCardboardNfcListener(this);
-
-		onNfcIntent(getIntent());
-
-		setVolumeKeysMode(2);
-
 		if (Build.VERSION.SDK_INT < 19) {
 			final Handler handler = new Handler();
 			getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener()
@@ -136,7 +126,7 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 						handler.postDelayed(new Runnable()
 						{
 							public void run() {
-								CardboardActivity.this.setFullscreenMode();
+								GvrActivity.this.setFullscreenMode();
 							}
 						}
 						, 2000L);
@@ -149,36 +139,29 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 	{
 		super.onResume();
 
-		if (mCardboardView != null) {
-			mCardboardView.onResume();
+		if (mGvrView != null) {
+			mGvrView.onResume();
 		}
-
-		mMagnetSensor.start();
-		mNfcSensor.onResume(this);
 	}
 
 	protected void onPause()
 	{
 		super.onPause();
 
-		if (mCardboardView != null) {
-			mCardboardView.onPause();
+		if (mGvrView != null) {
+			mGvrView.onPause();
 		}
-
-		mMagnetSensor.stop();
-		mNfcSensor.onPause(this);
 	}
 
 	protected void onDestroy()
 	{
-		mNfcSensor.removeOnCardboardNfcListener(this);
 		super.onDestroy();
 	}
 
 	public void setContentView(View view)
 	{
-		if ((view instanceof CardboardView)) {
-			setCardboardView((CardboardView)view);
+		if ((view instanceof GvrView)) {
+			setGvrView((GvrView)view);
 		}
 
 		super.setContentView(view);
@@ -186,8 +169,8 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 
 	public void setContentView(View view, ViewGroup.LayoutParams params)
 	{
-		if ((view instanceof CardboardView)) {
-			setCardboardView((CardboardView)view);
+		if ((view instanceof GvrView)) {
+			setGvrView((GvrView)view);
 		}
 
 		super.setContentView(view, params);
@@ -195,11 +178,6 @@ implements MagnetSensor.OnCardboardTriggerListener, NfcSensor.OnCardboardNfcList
 
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (KeyEvent.KEYCODE_VOLUME_UP == keyCode || KeyEvent.KEYCODE_VOLUME_DOWN == keyCode) {
-			mMagnetSensor.fakeTrigger();
-			return true;
-		}
-		
 		if (((keyCode == 24) || (keyCode == 25)) && (areVolumeKeysDisabled()))
 		{
 			return true;

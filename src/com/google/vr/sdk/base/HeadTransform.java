@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 import android.opengl.Matrix;
 import android.util.FloatMath;
@@ -97,7 +97,7 @@ public class HeadTransform
 		float t = m[0] + m[5] + m[10];
 		float s, w, x, y, z;
 		if (t >= 0.0F) {
-			s = FloatMath.sqrt(t + 1.0F);
+			s = (float) Math.sqrt(t + 1.0F);
 			w = 0.5F * s;
 			s = 0.5F / s;
 			x = (m[9] - m[6]) * s;
@@ -107,7 +107,7 @@ public class HeadTransform
 		else
 		{
 			if ((m[0] > m[5]) && (m[0] > m[10])) {
-				s = FloatMath.sqrt(1.0F + m[0] - m[5] - m[10]);
+				s = (float) Math.sqrt(1.0F + m[0] - m[5] - m[10]);
 				x = s * 0.5F;
 				s = 0.5F / s;
 				y = (m[4] + m[1]) * s;
@@ -117,7 +117,7 @@ public class HeadTransform
 			else
 			{
 				if (m[5] > m[10]) {
-					s = FloatMath.sqrt(1.0F + m[5] - m[0] - m[10]);
+					s = (float) Math.sqrt(1.0F + m[5] - m[0] - m[10]);
 					y = s * 0.5F;
 					s = 0.5F / s;
 					x = (m[4] + m[1]) * s;
@@ -125,7 +125,7 @@ public class HeadTransform
 					w = (m[2] - m[8]) * s;
 				}
 				else {
-					s = FloatMath.sqrt(1.0F + m[10] - m[0] - m[5]);
+					s = (float) Math.sqrt(1.0F + m[10] - m[0] - m[5]);
 					z = s * 0.5F;
 					s = 0.5F / s;
 					x = (m[2] + m[8]) * s;
@@ -147,7 +147,7 @@ public class HeadTransform
 		}
 
 		float yaw, roll, pitch = (float)Math.asin(mHeadView[6]);
-		if (FloatMath.sqrt(1.0F - mHeadView[6] * mHeadView[6]) >= 0.01F)
+		if ((float) Math.sqrt(1.0F - mHeadView[6] * mHeadView[6]) >= 0.01F)
 		{
 			yaw = (float)Math.atan2(-mHeadView[2], mHeadView[10]);
 			roll = (float)Math.atan2(-mHeadView[4], mHeadView[5]);

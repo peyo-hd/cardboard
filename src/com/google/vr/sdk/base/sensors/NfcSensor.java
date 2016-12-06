@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard.sensors;
+package com.google.vr.sdk.base.sensors;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -28,7 +28,7 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.os.Handler;
 import android.util.Log;
-import com.google.vrtoolkit.cardboard.CardboardDeviceParams;
+import com.google.vr.sdk.base.CardboardDeviceParams;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard.sensors;
+package com.google.vr.sdk.base.sensors;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -23,7 +23,7 @@ import android.hardware.SensorManager;
 import android.opengl.Matrix;
 import android.os.Handler;
 import android.os.Looper;
-import com.google.vrtoolkit.cardboard.sensors.internal.OrientationEKF;
+import com.google.vr.sdk.base.sensors.internal.OrientationEKF;
 
 /**
  * Provides head tracking information from the device IMU. 

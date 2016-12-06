@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard.sensors.internal;
+package com.google.vr.sdk.base.sensors.internal;
 
 public class Matrix3x3d
 {

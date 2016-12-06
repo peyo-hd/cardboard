@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 /**
  * Describes the stereoscopic rendering details of an eye. 
@@ -23,14 +23,14 @@ public class EyeParams
 	private final int mEye;
 	private final Viewport mViewport;
 	private final FieldOfView mFov;
-	private final EyeTransform mEyeTransform;
+	private final Eye mEyeTransform;
 
 	public EyeParams(int eye)
 	{
 		mEye = eye;
 		mViewport = new Viewport();
 		mFov = new FieldOfView();
-		mEyeTransform = new EyeTransform(this);
+		mEyeTransform = new Eye(this);
 	}
 
 	public int getEye()
@@ -48,13 +48,13 @@ public class EyeParams
 		return mFov;
 	}
 
-	public EyeTransform getTransform()
+	public Eye getTransform()
 	{
 		return mEyeTransform;
 	}
 
 	/** Defines the constants identifying the current eye. */
-	public static class Eye
+	public static class EyeType
 	{
 		public static final int MONOCULAR = 0;
 		public static final int LEFT = 1;

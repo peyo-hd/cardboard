@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 /** Defines all required parameters to correct the distortion caused by the lenses. 
  */

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 import android.opengl.GLES20;
 import android.util.Log;
@@ -21,6 +21,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.ShortBuffer;
 
 /** 
  * Encapsulates the rendering operations to correct lens distortion. 
@@ -206,7 +207,7 @@ public class DistortionRenderer
 		GLES20.glUniform1f(mProgramHolder.uTextureCoordScale, mResolutionScale);
 
 		GLES20.glBindBuffer(34963, mesh.mElementBufferId);
-		GLES20.glDrawElements(5, mesh.nIndices, 5125, 0);
+		GLES20.glDrawElements(5, mesh.nIndices, GLES20.GL_UNSIGNED_SHORT, 0);
 	}
 
 	private float computeDistortionScale(Distortion distortion, float screenWidthM, float interpupillaryDistanceM)
@@ -444,7 +445,7 @@ public class DistortionRenderer
 			}
 
 			nIndices = 3158;
-			int[] indexData = new int[nIndices];
+			short[] indexData = new short[nIndices];
 			int indexOffset = 0;
 			vertexOffset = 0;
 			for (int row = 0; row < 39; row++) {
@@ -462,8 +463,8 @@ public class DistortionRenderer
 							vertexOffset--;
 						}
 					}
-					indexData[(indexOffset++)] = vertexOffset;
-					indexData[(indexOffset++)] = (vertexOffset + 40);
+					indexData[(indexOffset++)] = (short)vertexOffset;
+					indexData[(indexOffset++)] = (short)(vertexOffset + 40);
 				}
 				vertexOffset += 40;
 			}
@@ -472,7 +473,7 @@ public class DistortionRenderer
 
 			vertexBuffer.put(vertexData).position(0);
 
-			IntBuffer indexBuffer = ByteBuffer.allocateDirect(indexData.length * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+			ShortBuffer indexBuffer = ByteBuffer.allocateDirect(indexData.length * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
 
 			indexBuffer.put(indexData).position(0);
 
@@ -485,7 +486,7 @@ public class DistortionRenderer
 			GLES20.glBufferData(34962, vertexData.length * 4, vertexBuffer, 35044);
 
 			GLES20.glBindBuffer(34963, mElementBufferId);
-			GLES20.glBufferData(34963, indexData.length * 4, indexBuffer, 35044);
+			GLES20.glBufferData(34963, indexData.length * 2, indexBuffer, 35044);
 
 			GLES20.glBindBuffer(34962, 0);
 			GLES20.glBindBuffer(34963, 0);

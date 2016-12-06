@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.vrtoolkit.cardboard;
+package com.google.vr.sdk.base;
 
 import android.opengl.Matrix;
 
 /** Describes the transformations to apply in an eye view. */
-public class EyeTransform
+public class Eye
 {
 	private final EyeParams mEyeParams;
 	private final float[] mEyeView;
 	private final float[] mPerspective;
 
-	public EyeTransform(EyeParams params)
+	public Eye(EyeParams params)
 	{
 		mEyeParams = params;
 		mEyeView = new float[16];
@@ -39,6 +39,11 @@ public class EyeTransform
 		return mEyeView;
 	}
 
+        public float[] getPerspective(final float near, final float far)
+	{
+	        return getPerspective();
+	}
+
 	public float[] getPerspective()
 	{
 		return mPerspective;
@@ -47,5 +52,10 @@ public class EyeTransform
 	public EyeParams getParams()
 	{
 		return mEyeParams;
+	}
+	
+	public FieldOfView getFov()
+	{
+		return mEyeParams.getFov();
 	}
 }
